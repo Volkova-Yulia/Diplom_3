@@ -1,11 +1,10 @@
 package api;
 
 import config.TestConfig;
+import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-
-import java.util.HashMap;
-import java.util.Map;
+import pojo.User;
 
 import static io.restassured.RestAssured.given;
 
@@ -19,22 +18,24 @@ public final class ApiClient {
     private ApiClient() {
     }
 
+    @Step("Зарегистрировать пользователя {email}")
     public static void registerUser(String name, String email, String password) {
         given()
                 .baseUri(TestConfig.BASE_URL)
                 .contentType(ContentType.JSON)
-                .body(credentials(name, email, password))
+                .body(new User(name, email, password))
         .when()
                 .post(REGISTER_PATH)
         .then()
                 .statusCode(200);
     }
 
+    @Step("Выполнить логин пользователя {email}")
     public static String login(String email, String password) {
         Response response = given()
                 .baseUri(TestConfig.BASE_URL)
                 .contentType(ContentType.JSON)
-                .body(credentials(null, email, password))
+                .body(new User(null, email, password))
         .when()
                 .post(LOGIN_PATH);
 
@@ -44,6 +45,7 @@ public final class ApiClient {
         return response.jsonPath().getString("accessToken");
     }
 
+    @Step("Удалить пользователя {email}, если он существует")
     public static boolean deleteUserIfExists(String email, String password) {
         for (int attempt = 1; attempt <= DELETE_ATTEMPTS; attempt++) {
             try {
@@ -79,16 +81,6 @@ public final class ApiClient {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private static Map<String, String> credentials(String name, String email, String password) {
-        Map<String, String> body = new HashMap<>();
-        if (name != null) {
-            body.put("name", name);
-        }
-        body.put("email", email);
-        body.put("password", password);
-        return body;
     }
 
     private static String normalizeToken(String token) {

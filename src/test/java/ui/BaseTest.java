@@ -4,45 +4,31 @@ import driver.YandexDriverResolver;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.UUID;
 
 public class BaseTest {
 
     protected WebDriver driver;
-    protected String browser;
+
+    private static final String BROWSER = System.getProperty("browser", "chrome");
 
     private static final String YANDEX_BINARY =
             System.getProperty("yandex.binary", defaultYandexBinary());
 
-    public BaseTest(String browser) {
-        this.browser = browser;
-    }
-
-    @Parameterized.Parameters(name = "Браузер: {0}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {"chrome"},
-                {"yandex"}
-        });
-    }
-
     @Before
     public void setUp() {
-        if ("chrome".equalsIgnoreCase(browser)) {
+        if ("chrome".equalsIgnoreCase(BROWSER)) {
             driver = new ChromeDriver();
-        } else if ("yandex".equalsIgnoreCase(browser)) {
+        } else if ("yandex".equalsIgnoreCase(BROWSER)) {
             driver = createYandexDriver();
         } else {
-            throw new IllegalArgumentException("Неизвестный браузер: " + browser);
+            throw new IllegalArgumentException("Неизвестный браузер: " + BROWSER);
         }
         driver.manage().window().maximize();
     }

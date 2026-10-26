@@ -2,4 +2,4 @@ target/
 .allure/
 .idea/
 *.iml
-allure-results/
+allure-report/

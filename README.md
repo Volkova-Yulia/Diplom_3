@@ -12,12 +12,14 @@ src/main/java/
 │   └── TestConfig.java
 ├── driver/
 │   └── YandexDriverResolver.java
-└── pages/
-    ├── BasePage.java
-    ├── MainPage.java
-    ├── LoginPage.java
-    ├── RegisterPage.java
-    └── ForgotPasswordPage.java
+├── pages/
+│   ├── BasePage.java
+│   ├── MainPage.java
+│   ├── LoginPage.java
+│   ├── RegisterPage.java
+│   └── ForgotPasswordPage.java
+└── pojo/
+    └── User.java
 
 src/test/java/
 └── ui/
@@ -51,20 +53,21 @@ scripts/
 | Переход к разделу «Соусы» | `ConstructorTest.testGoToSaucesSection` |
 | Переход к разделу «Начинки» | `ConstructorTest.testGoToFillingsSection` |
 
-Каждый тест выполняется в двух браузерах — Google Chrome и Яндекс Браузере
-(параметризация `@Parameterized`, имя набора — «Браузер: chrome» / «Браузер: yandex»).
-Итого 10 тестовых методов × 2 браузера = 20 запусков.
+Все тестовые методы выполняются в браузере, заданном системным свойством `browser`
+(по умолчанию — Google Chrome, для Яндекс Браузера — `-Dbrowser=yandex`).
+Итого 10 тестовых методов.
 
 Признак успешного входа — появление кнопки «Оформить заказ» вместо «Войти в аккаунт».
 
 ## Тестовые данные
 
-- В `LoginTest` пользователь создаётся через API в `@BeforeClass` и удаляется через API
-  в `@AfterClass`.
+- В `LoginTest` новый пользователь создаётся через API в `@Before` (перед каждым
+  тестом) и удаляется через API в `@After`.
 - В `RegistrationTest` регистрация выполняется через UI, потому что это и есть проверяемый
   сценарий. Все созданные пользователи запоминаются и удаляются через API в `@After`.
 - `ApiClient` умеет регистрировать пользователя, логинить его и удалять
-  (`DELETE /api/auth/user`).
+  (`DELETE /api/auth/user`). Тело запросов передаётся сериализацией объекта
+  `pojo.User`.
 
 ## Запуск
 
@@ -72,6 +75,12 @@ scripts/
 
 ```bash
 mvn test
+```
+
+Браузер задаётся системным свойством `browser` (по умолчанию — `chrome`):
+
+```bash
+mvn test -Dbrowser=yandex
 ```
 
 Базовый URL можно переопределить:
@@ -84,17 +93,17 @@ mvn test -Dbase.url=https://qa-stellarburgers.education-services.ru
 
 ## Allure
 
-Результаты прогона складываются в `target/allure-results`, HTML-отчёт генерируется в
-каталог `allure-report`:
+Результаты прогона складываются в `target/allure-results`; свежие результаты
+прогона в Chrome также приложены в корневом каталоге `allure-results/`.
+HTML-отчёт генерируется командой:
 
 ```bash
 mvn allure:report
 open allure-report/index.html
 ```
 
-В отчёте видны фичи (`@Feature`), названия тестов с параметром браузера и все шаги
-Page Object (`@Step`). Готовый отчёт последнего прогона лежит в каталоге
-`allure-report/`.
+В отчёте видны фичи (`@Feature`), названия тестов и все шаги
+Page Object и API-клиента (`@Step`).
 
 Шаги в IntelliJ отображаются только при установленном плагине Allure IntelliJ:
 для Maven-агента (`aspectjweaver`) он подключается автоматически, а для запуска
@@ -129,5 +138,5 @@ mvn test -Dyandex.driver=/path/to/chromedriver -Dyandex.binary=/path/to/Yandex
 mvn test -Dyandex.chromium.version=150
 ```
 
-Если браузер или драйвер не найдены — тесты с параметром `yandex` не падают,
+Если браузер или драйвер не найдены — тесты с `-Dbrowser=yandex` не падают,
 а пропускаются с указанием причины.

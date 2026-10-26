@@ -5,8 +5,6 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import pages.LoginPage;
 import pages.RegisterPage;
 
@@ -15,17 +13,12 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-@RunWith(Parameterized.class)
 @Feature("Регистрация")
 public class RegistrationTest extends BaseTest {
 
     private static final String MINIMAL_PASSWORD = "123456";
 
     private final Map<String, String> createdUsers = new LinkedHashMap<>();
-
-    public RegistrationTest(String browser) {
-        super(browser);
-    }
 
     @After
     public void deleteCreatedUsers() {

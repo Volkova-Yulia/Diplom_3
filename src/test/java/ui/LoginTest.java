@@ -3,11 +3,9 @@ package ui;
 import api.ApiClient;
 import io.qameta.allure.Feature;
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import pages.ForgotPasswordPage;
 import pages.LoginPage;
 import pages.MainPage;
@@ -17,27 +15,22 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
-@RunWith(Parameterized.class)
 @Feature("Вход в систему")
 public class LoginTest extends BaseTest {
 
     private static final String USER_NAME = "ТестИван";
     private static final String USER_PASSWORD = "password123";
 
-    private static String email;
+    private String email;
 
-    public LoginTest(String browser) {
-        super(browser);
-    }
-
-    @BeforeClass
-    public static void createTestUser() {
+    @Before
+    public void createTestUser() {
         email = "login_user_" + UUID.randomUUID().toString().substring(0, 8) + "@yandex.ru";
         ApiClient.registerUser(USER_NAME, email, USER_PASSWORD);
     }
 
-    @AfterClass
-    public static void deleteTestUser() {
+    @After
+    public void deleteTestUser() {
         if (!ApiClient.deleteUserIfExists(email, USER_PASSWORD)) {
             System.err.println("Не удалось удалить тестового пользователя: " + email);
         }
